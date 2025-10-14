@@ -1,0 +1,10 @@
+D:\Rust_Solana\🦀Projects\Hackathons ready project\Solana-DeFi-Portfolio\backend\target\debug\deps\serde_qs-0485762ebc4063e5.d: C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\lib.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\mod.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\parse.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\error.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\ser.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\utils.rs
+
+D:\Rust_Solana\🦀Projects\Hackathons ready project\Solana-DeFi-Portfolio\backend\target\debug\deps\libserde_qs-0485762ebc4063e5.rmeta: C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\lib.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\mod.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\parse.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\error.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\ser.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\utils.rs
+
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\lib.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\mod.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\de\parse.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\error.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\ser.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.12.0\src\utils.rs:

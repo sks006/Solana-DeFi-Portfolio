@@ -1,0 +1,11 @@
+D:\Rust_Solana\🦀Projects\Hackathons ready project\Solana-DeFi-Portfolio\backend\target\debug\deps\quote-2991807424a2343f.d: C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\lib.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ext.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\format.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ident_fragment.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\to_tokens.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\runtime.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\spanned.rs
+
+D:\Rust_Solana\🦀Projects\Hackathons ready project\Solana-DeFi-Portfolio\backend\target\debug\deps\libquote-2991807424a2343f.rmeta: C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\lib.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ext.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\format.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ident_fragment.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\to_tokens.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\runtime.rs C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\spanned.rs
+
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\lib.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ext.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\format.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\ident_fragment.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\to_tokens.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\runtime.rs:
+C:\Users\seamk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.41\src\spanned.rs:

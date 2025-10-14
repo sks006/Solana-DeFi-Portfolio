@@ -1,0 +1,12 @@
+[package]
+name = "solana-defi-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+leptos = { version = "0.5", features = ["csr"] }
+console_error_panic_hook = "0.1"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"

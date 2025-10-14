@@ -1,0 +1,1 @@
+D:\Rust_Solana\🦀Projects\Hackathons\ ready\ project\Solana-DeFi-Portfolio\backend\target\debug\server.exe: D:\Rust_Solana\🦀Projects\Hackathons\ ready\ project\Solana-DeFi-Portfolio\backend\src\main.rs
