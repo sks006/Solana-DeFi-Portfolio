@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 263 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 240 8% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 8% 15%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 158 64% 52%;
+    --accent-foreground: 240 10% 3.9%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --success: 158 64% 52%;
+    --success-foreground: 240 10% 3.9%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+
+    --border: 240 8% 20%;
+    --input: 240 8% 20%;
+    --ring: 263 70% 60%;
+
+    --radius: 0.75rem;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(263 70% 60%) 0%, hsl(220 80% 65%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(158 64% 52%) 0%, hsl(220 80% 65%) 100%);
+    --glow-primary: 0 0 30px hsla(263, 70%, 60%, 0.3);
+    --glow-accent: 0 0 30px hsla(158, 64%, 52%, 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
