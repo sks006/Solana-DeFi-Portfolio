@@ -1,0 +1,6 @@
+[workspace]
+members = ["portfolio-program",
+    "programs/amm-pool",
+    "programs/portfolio-program",
+    "shared",
+]
