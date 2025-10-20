@@ -1,7 +1,10 @@
-# solana-defi-portfolio
+# 📂 Total Project Tree — Solana DeFi Portfolio + Swap Simulator with Risk Alerts with Ai.
 
+solana-defi-portfolio/
 
-├── Cargo.toml                   Root workspace config (Rust crates)
+│
+
+├── Cargo.toml                  # Root workspace config (Rust crates)
 
 ├── Makefile                    # Build/test/deploy commands
 
@@ -16,113 +19,6 @@
 ├── .gitignore
 
 │
-
-│
-
-├── backend/                    # Leptos + Rust API + WebSocket
-
-│   ├── Cargo.toml
-
-│   ├── src/
-
-│   │   ├── main.rs
-
-│   │   ├── server_functions/   # portfolio.rs, swap.rs, risk.rs
-
-│   │   ├── ws/                 # manager.rs, messages.rs
-
-│   │   ├── services/           # solana_client.rs, amm_math.rs,
-risk_service.rs, ai_alerts.rs
-
-│   │   ├── models/             # Portfolio, SwapQuote, RiskAlert
-
-│   │   ├── database/           # connection.rs, migrations/
-
-│   │   └── utils/              # error.rs, validation.rs, math.rs
-
-│   ├── config/                 # default.toml, dev.toml,
-production.toml
-
-│   ├── tests/
-
-│   │   ├── unit/
-
-│   │   ├── integration/
-
-│   │   └── load/
-
-│   └── benches/                # Performance benchmarks
-
-│
-
-│
-
-├── ai/                         # AI risk alert logic
-
-│   ├── model/
-
-│   │   ├── train.py            # ML model training (optional)
-
-│   │   ├── predict.py          # Inference logic
-
-│   │   └── risk_model.pkl      # Saved model
-
-│   ├── data/
-
-│   │   └── sample_trades.csv   # Historical trade data
-
-│   └── README.md               # AI module overview
-
-│
-
-├── scripts/                    # Automation scripts
-
-│   ├── 01_build.sh
-
-│   ├── 02_deploy.sh
-
-│   ├── 03_test.sh
-
-│   ├── cleanup.sh
-
-│   └── solana/
-
-│       ├── deploy_programs.sh
-
-│       ├── airdrop.sh
-
-│       └── test_validator.sh
-
-│
-
-├── docs/                       # Showcase-ready documentation
-
-│   ├── README_DEMO.md          # Quickstart for judges
-
-│   ├── architecture.md
-
-│   ├── architecture.png
-
-│   ├── features.md
-
-│   ├── api.md
-
-│   └── usage.md
-
-│
-
-└── .github/                    # CI/CD workflows
-
-├── workflows/
-
-│   ├── ci.yml              # lint + test + build
-
-│   ├── deploy.yml          # deploy to devnet
-
-│   └── security.yml        # cargo audit, npm audit
-
-└── dependabot.yml
-
 ├── frontend/                   # React + shadcn/ui + Vite
 
 │   ├── index.html
@@ -173,67 +69,111 @@ useRiskAlerts
 
 │   └── tests/                  # Playwright e2e tests
 
-programs/
-
 │
 
-├── amm-pool/                          # AMM swap logic
+├── backend/                    # Leptos + Rust API + WebSocket
 
 │   ├── Cargo.toml
 
-│   ├── Anchor.toml
-
 │   ├── src/
 
-│   │   ├── lib.rs                     # Entry point: initialize_pool,
-execute_swap
+│   │   ├── main.rs
 
-│   │   ├── pool_state.rs             # Pool struct + PoolParams
+│   │   ├── server_functions/   # portfolio.rs, swap.rs, risk.rs
 
-│   │   ├── swap_math.rs              # Constant product swap logic
+│   │   ├── ws/                 # manager.rs, messages.rs
 
-│   │   ├── fees.rs                   # Optional: fee tracking
+│   │   ├── services/           # solana_client.rs, amm_math.rs,
+risk_service.rs, ai_alerts.rs
 
-│   │   ├── context/
+│   │   ├── models/             # Portfolio, SwapQuote, RiskAlert
 
-│   │   │   ├── initialize_pool.rs    # #[derive(Accounts)] for pool
-init
+│   │   ├── database/           # connection.rs, migrations/
 
-│   │   │   └── execute_swap.rs       # #[derive(Accounts)] for swap
+│   │   └── utils/              # error.rs, validation.rs, math.rs
 
-│   └── tests/
+│   ├── config/                 # default.toml, dev.toml,
+production.toml
 
-│       └── swap_test.rs              # Anchor test: pool init + swap
-execution
+│   ├── tests/
+
+│   │   ├── unit/
+
+│   │   ├── integration/
+
+│   │   └── load/
+
+│   └── benches/                # Performance benchmarks
+
+├── programs/                         # Solana on-chain logic
+│   ├── Cargo.toml                    # Workspace config
+│   │
+│   ├── amm-pool/                     # AMM swap logic
+│   │   ├── Cargo.toml
+│   │   ├── Anchor.toml
+│   │   ├── src/
+│   │   │   ├── lib.rs
+│   │   │   ├── pool_state.rs
+│   │   │   ├── swap_math.rs
+│   │   │   ├── fees.rs
+│   │   │   └── context/
+│   │   │       ├── initialize_pool.rs
+│   │   │       └── execute_swap.rs
+│   │   └── tests/
+│   │       └── swap_test.rs
+│   │
+│   └── portfolio-program/           # Position tracking
+│       ├── Cargo.toml
+│       ├── Anchor.toml
+│       ├── src/
+│       │   ├── lib.rs
+│       │   ├── state.rs
+│       │   ├── processor.rs
+│       │   ├── types.rs
+│       │   └── context/
+│       │       ├── update_position.rs
+│       │       └── record_trade.rs
+│       └── tests/
+│           └── position_test.rs
 
 │
 
-├── portfolio-program/                # Portfolio tracking logic
+├── ai/                         # AI risk alert logic
 
-│   ├── Cargo.toml
+│   ├── model/
 
-│   ├── Anchor.toml
+│   │   ├── train.py            # ML model training (optional)
 
-│   ├── src/
+│   │   ├── predict.py          # Inference logic
 
-│   │   ├── lib.rs                    # Entry point: update_position,
-record_trade
+│   │   └── risk_model.pkl      # Saved model
 
-│   │   ├── state.rs                 # Position struct
+│   ├── data/
 
-│   │   ├── processor.rs             # Logic for position updates and
-trade recording
+│   │   └── sample_trades.csv   # Historical trade data
 
-│   │   ├── context/
+│   └── README.md               # AI module overview
 
-│   │   │   ├── update_position.rs   # #[derive(Accounts)] for
-position update
+│
 
-│   │   │   └── record_trade.rs      # #[derive(Accounts)] for trade
-recording
+├── docs/                       # Showcase-ready documentation
 
-│   │   ├── types.rs                 # TradeData struct
+│   ├── README_DEMO.md          # Quickstart for judges
 
-│   └── tests/
+│   ├── architecture.md
 
-│       └── position_test.rs         # Anchor test: update + record
+│   ├── architecture.png
+
+│   ├── features.md
+
+│   ├── api.md
+
+│   └── usage.md
+
+│
+
+└── .github/                    # workflows
+
+
+
+
