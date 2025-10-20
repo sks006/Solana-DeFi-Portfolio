@@ -106,37 +106,64 @@ production.toml
 │   └── benches/                # Performance benchmarks
 
 ├── programs/                         # Solana on-chain logic
+
 │   ├── Cargo.toml                    # Workspace config
+
 │   │
+
 │   ├── amm-pool/                     # AMM swap logic
+
 │   │   ├── Cargo.toml
+
 │   │   ├── Anchor.toml
+
 │   │   ├── src/
+
 │   │   │   ├── lib.rs
+
 │   │   │   ├── pool_state.rs
+
 │   │   │   ├── swap_math.rs
+
 │   │   │   ├── fees.rs
+
 │   │   │   └── context/
+
 │   │   │       ├── initialize_pool.rs
+
 │   │   │       └── execute_swap.rs
+
 │   │   └── tests/
+
 │   │       └── swap_test.rs
+
 │   │
+
 │   └── portfolio-program/           # Position tracking
+
 │       ├── Cargo.toml
+
 │       ├── Anchor.toml
+
 │       ├── src/
+
 │       │   ├── lib.rs
+
 │       │   ├── state.rs
+
 │       │   ├── processor.rs
+
 │       │   ├── types.rs
+
 │       │   └── context/
+
 │       │       ├── update_position.rs
+
 │       │       └── record_trade.rs
 │       └── tests/
+
 │           └── position_test.rs
 
-│
 
 ├── ai/                         # AI risk alert logic
 
