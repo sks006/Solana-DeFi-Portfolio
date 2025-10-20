@@ -18,7 +18,8 @@ solana-defi-portfolio/
 
 ├── .gitignore
 
-│
+│               🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
+
 ├── frontend/                   # React + shadcn/ui + Vite
 
 │   ├── index.html
