@@ -1,0 +1,45 @@
+# ---------------------------
+# 🦀 Rust + Solana (Anchor) .gitignore
+# ---------------------------
+
+# Rust build output
+target/
+
+# Temporary build artifacts (Rust Analyzer, Flycheck, etc.)
+**/flycheck*/
+**/rust-analyzer*/ 
+*.rs.bk
+
+# Solana local validator / test ledgers
+**/test-ledger/
+**/.ledger/
+
+# Anchor-generated keypairs and artifacts
+*.keypair
+*.json
+
+# Cargo-specific
+Cargo.lock
+# if you have multiple programs under 'programs/', ignore their locks too
+programs/**/Cargo.lock
+
+# Node (if you use Anchor + TS tests)
+node_modules/
+dist/
+build/
+*.log
+
+# IDE & editor config
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Environment or OS-specific
+Thumbs.db
+desktop.ini
+
+# Miscellaneous
+.env
+*.bak
+*.tmp

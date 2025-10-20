@@ -1,6 +1,7 @@
+
 [workspace]
-members = ["portfolio-program",
-    "programs/amm-pool",
-    "programs/portfolio-program",
-    "shared",
+members = [
+    "amm-pool",
+    "portfolio-program"
 ]
+resolver = "2"
