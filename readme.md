@@ -18,7 +18,7 @@ solana-defi-portfolio/
 
 ├── .gitignore
 
-│               🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
+│               🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
 
 ├── frontend/                   # React + shadcn/ui + Vite
 
@@ -70,7 +70,7 @@ useRiskAlerts
 
 │   └── tests/                  # Playwright e2e tests
 
-                      🟨🟨🟨🟨🟨🟨🟨🟨
+                     🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
 ├── backend/                    # Leptos + Rust API + WebSocket
 
