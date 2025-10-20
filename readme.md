@@ -69,7 +69,7 @@ useRiskAlerts
 
 │   └── tests/                  # Playwright e2e tests
 
-│
+                      🟨🟨🟨🟨🟨🟨🟨🟨
 
 ├── backend/                    # Leptos + Rust API + WebSocket
 
@@ -164,6 +164,7 @@ production.toml
 
 │           └── position_test.rs
 
+            🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
 
 ├── ai/                         # AI risk alert logic
 
