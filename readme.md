@@ -138,18 +138,24 @@ useRiskAlerts
                    🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
                    
 ├── ai/
-│   ├── Cargo.toml
-│   ├── src/
-│   │   ├── main.rs
-│   │   ├── runner/
-│   │   │   └── onnx_runner.rs
-│   │   ├── services/
-│   │   │   └── risk_predictor.rs
+
+│   ├── python/
+
+│   │   ├── requirements.txt
+
+│   │   ├── train_model.py
+
+│   │   ├── export_to_onnx.py
+
+│   │   └── data/
+
 │   ├── models/
+
 │   │   └── v1/
-│   │       └── risk_classifier.onnx
-│   └── tests/
-│       └── latency_bench.rs
+
+│   │       ├── risk_classifier.onnx
+
+│   │       └── scaler.pkl
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
