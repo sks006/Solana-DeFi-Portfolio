@@ -135,7 +135,7 @@ useRiskAlerts
 
 │       └── integration/          # backend + ai + replay
                    
-                   🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
+                 🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
                    
 ├── ai/
 
@@ -145,17 +145,43 @@ useRiskAlerts
 
 │   │   ├── train_model.py
 
-│   │   ├── export_to_onnx.py
+│   │   ├── predict_risk.py
 
-│   │   └── data/
+│   │   ├── models/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── risk_classifier.py
+
+│   │   │   └── anomaly_detector.py
+
+│   │   ├── data/
+
+│   │   │   ├── process_training_data.py
+
+│   │   │   └── feature_engineering.py
+
+│   │   └── config/
+
+│   │       └── model_config.yaml
 
 │   ├── models/
 
-│   │   └── v1/
+│   │   ├── risk_classifier.onnx
 
-│   │       ├── risk_classifier.onnx
+│   │   ├── anomaly_detector.joblib
 
-│   │       └── scaler.pkl
+│   │   └── scaler.pkl
+
+│   ├── config/
+
+│   │   └── ai_config.toml
+
+│   └── tests/
+
+│       ├── test_risk_predictor.rs
+
+│       └── test_anomaly_detector.rs
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
