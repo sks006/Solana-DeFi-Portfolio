@@ -1,2 +1,7 @@
+# amm-pool/Anchor.toml
 [programs.localnet]
-amm_pool = "9N6s4RrZoVZcXBVd89jFv8x3tk5ePTgLV2F7KoJwsVN8"
+amm_pool = "AMM11111111111111111111111111111111111111111"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"

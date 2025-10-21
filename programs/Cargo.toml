@@ -1,7 +1,12 @@
+# solana-defi-portfolio/programs/Cargo.toml
 
 [workspace]
 members = [
     "amm-pool",
     "portfolio-program"
 ]
-resolver = "2"
+
+# 🧠 Why:
+# - Defines both programs as workspace members
+# - Lets Anchor/Cargo build both together
+# - Avoids the need for a separate root Cargo.toml

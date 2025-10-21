@@ -1,0 +1,22 @@
+# solana-defi-portfolio/programs/Anchor.toml
+
+[workspace]
+members = [
+    "amm-pool",
+    "portfolio-program"
+]
+
+[provider]
+# Localnet for development
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+amm_pool = "AMM11111111111111111111111111111111111111111"
+portfolio_program = "PORT111111111111111111111111111111111111111"
+
+[scripts]
+# Custom shortcuts
+test = "anchor test"
+deploy = "anchor deploy"
+build = "anchor build"
