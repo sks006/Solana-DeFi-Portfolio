@@ -3,13 +3,19 @@
 solana-defi-portfolio/
 
 ├── Makefile                      # dev, test, start-demo targets
+
 ├── README.md                     # short overview + demo instructions
+
 ├── Dockerfile                    # backend + AI service
+
 ├── docker-compose.yml            # services: backend, ai, db, replay
+
 ├── .gitignore
 
 ├── scripts/
+
 │   ├── replay_events.sh          # demo + load test
+
 │   └── warm_models.sh            # AI bootstrapping
 
 
@@ -68,35 +74,65 @@ useRiskAlerts
                      🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
 ├── backend/
+
 │   ├── Cargo.toml
+
 │   ├── src/
+
 │   │   ├── main.rs
+
 │   │   ├── server_functions/
+
 │   │   │   ├── portfolio.rs
+
 │   │   │   ├── swap.rs
+
 │   │   │   └── risk.rs
+
 │   │   ├── ws/
+
 │   │   │   ├── hub.rs
+
 │   │   │   └── client.rs
+
 │   │   ├── ingestion/
+
 │   │   │   ├── solana_ws.rs
+
 │   │   │   └── normalizer.rs
+
 │   │   ├── pipeline/
+
 │   │   │   ├── mpsc_queue.rs
+
 │   │   │   ├── micro_batcher.rs
+
 │   │   │   └── rules_engine.rs
+
 │   │   ├── services/
+
 │   │   │   ├── solana_client.rs
+
 │   │   │   ├── ai_client.rs
+
 │   │   │   └── metrics.rs
+
 │   │   ├── models/
+
 │   │   │   ├── event.rs
+
 │   │   │   └── risk_alert.rs
+
 │   │   └── utils/
+
 │   │       └── telemetry.rs
+
 │   ├── config/
+
 │   │   └── dev.toml
+
 │   └── tests/
+
 │       └── integration/          # backend + ai + replay
                    
                    🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
