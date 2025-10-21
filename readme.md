@@ -106,6 +106,8 @@ production.toml
 
 │   └── benches/                # Performance benchmarks
 
+                 🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
+
 ├── programs/                         # Solana on-chain logic
 
 │   ├── Cargo.toml                    # Workspace config
