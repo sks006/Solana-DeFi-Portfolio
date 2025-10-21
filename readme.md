@@ -2,21 +2,16 @@
 
 solana-defi-portfolio/
 
-│
-
-├── Cargo.toml                  # Root workspace config (Rust crates)
-
-├── Makefile                    # Build/test/deploy commands
-
-├── README.md                   # Project overview
-
-├── LICENSE
-
-├── Dockerfile
-
-├── docker-compose.yml
-
+├── Makefile                      # dev, test, start-demo targets
+├── README.md                     # short overview + demo instructions
+├── Dockerfile                    # backend + AI service
+├── docker-compose.yml            # services: backend, ai, db, replay
 ├── .gitignore
+
+├── scripts/
+│   ├── replay_events.sh          # demo + load test
+│   └── warm_models.sh            # AI bootstrapping
+
 
                     🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
 
@@ -72,39 +67,53 @@ useRiskAlerts
 
                      🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
-├── backend/                    # Leptos + Rust API + WebSocket
-
+├── backend/
 │   ├── Cargo.toml
-
 │   ├── src/
-
 │   │   ├── main.rs
-
-│   │   ├── server_functions/   # portfolio.rs, swap.rs, risk.rs
-
-│   │   ├── ws/                 # manager.rs, messages.rs
-
-│   │   ├── services/           # solana_client.rs, amm_math.rs,
-risk_service.rs, ai_alerts.rs
-
-│   │   ├── models/             # Portfolio, SwapQuote, RiskAlert
-
-│   │   ├── database/           # connection.rs, migrations/
-
-│   │   └── utils/              # error.rs, validation.rs, math.rs
-
-│   ├── config/                 # default.toml, dev.toml,
-production.toml
-
-│   ├── tests/
-
-│   │   ├── unit/
-
-│   │   ├── integration/
-
-│   │   └── load/
-
-│   └── benches/                # Performance benchmarks
+│   │   ├── server_functions/
+│   │   │   ├── portfolio.rs
+│   │   │   ├── swap.rs
+│   │   │   └── risk.rs
+│   │   ├── ws/
+│   │   │   ├── hub.rs
+│   │   │   └── client.rs
+│   │   ├── ingestion/
+│   │   │   ├── solana_ws.rs
+│   │   │   └── normalizer.rs
+│   │   ├── pipeline/
+│   │   │   ├── mpsc_queue.rs
+│   │   │   ├── micro_batcher.rs
+│   │   │   └── rules_engine.rs
+│   │   ├── services/
+│   │   │   ├── solana_client.rs
+│   │   │   ├── ai_client.rs
+│   │   │   └── metrics.rs
+│   │   ├── models/
+│   │   │   ├── event.rs
+│   │   │   └── risk_alert.rs
+│   │   └── utils/
+│   │       └── telemetry.rs
+│   ├── config/
+│   │   └── dev.toml
+│   └── tests/
+│       └── integration/          # backend + ai + replay
+                   
+                   🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
+                   
+├── ai/
+│   ├── Cargo.toml
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── runner/
+│   │   │   └── onnx_runner.rs
+│   │   ├── services/
+│   │   │   └── risk_predictor.rs
+│   ├── models/
+│   │   └── v1/
+│   │       └── risk_classifier.onnx
+│   └── tests/
+│       └── latency_bench.rs
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
@@ -167,25 +176,6 @@ production.toml
 
 │           └── position_test.rs
 
-            🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-
-├── ai/                         # AI risk alert logic
-
-│   ├── model/
-
-│   │   ├── train.py            # ML model training (optional)
-
-│   │   ├── predict.py          # Inference logic
-
-│   │   └── risk_model.pkl      # Saved model
-
-│   ├── data/
-
-│   │   └── sample_trades.csv   # Historical trade data
-
-│   └── README.md               # AI module overview
-
-│
 
 ├── docs/                       # Showcase-ready documentation
 
