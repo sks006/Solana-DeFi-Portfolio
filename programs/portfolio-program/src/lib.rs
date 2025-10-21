@@ -1,13 +1,14 @@
 use anchor_lang::prelude::*;
 
-pub mod state;
-pub mod processor;
-pub mod types;
 pub mod context;
+pub mod processor;
+pub mod state;
+pub mod types;
 
 use context::*;
 
-declare_id!("Port111111111111111111111111111111111111111");
+// Use the same placeholder - Anchor will generate unique IDs for each program
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod portfolio_program {

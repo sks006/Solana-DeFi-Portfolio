@@ -1,18 +1,22 @@
-use anchor_lang::prelude::*;
 use crate::pool_state::PoolState;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct InitializePool<'info> {
     #[account(init, payer = authority, space = PoolState::LEN)]
     pub pool_state: Account<'info, PoolState>,
 
-    /// CHECK: token accounts or mints are only stored as Pubkey references in PoolState
+    /// CHECK: Pool authority PDA
+    #[account(seeds = [pool_state.key().as_ref()], bump)]
+    pub pool_authority: SystemAccount<'info>,
+
+    /// CHECK: token A mint
     pub token_a: UncheckedAccount<'info>,
 
-    /// CHECK:
+    /// CHECK: token B mint
     pub token_b: UncheckedAccount<'info>,
 
-    /// CHECK: LP mint account reference
+    /// CHECK: LP mint account
     pub lp_mint: UncheckedAccount<'info>,
 
     #[account(mut)]

@@ -1,13 +1,14 @@
 use anchor_lang::prelude::*;
 
+pub mod context;
+pub mod fees;
 pub mod pool_state;
 pub mod swap_math;
-pub mod fees;
-pub mod context;
 
 use context::*;
 
-declare_id!("4nvSCrLZjCCDum1Ccg59Wwev2DA3CJoHXL3UXXEg7bdN");
+// Use Anchor's standard placeholder - Anchor will replace this during build
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod amm_pool {

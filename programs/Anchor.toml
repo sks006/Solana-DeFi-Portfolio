@@ -1,22 +1,17 @@
-# solana-defi-portfolio/programs/Anchor.toml
-
-[workspace]
-members = [
-    "amm-pool",
-    "portfolio-program"
-]
-
 [provider]
-# Localnet for development
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
-amm_pool = "AMM11111111111111111111111111111111111111111"
-portfolio_program = "PORT111111111111111111111111111111111111111"
+amm_pool = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+portfolio_program = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [scripts]
-# Custom shortcuts
-test = "anchor test"
-deploy = "anchor deploy"
-build = "anchor build"
+test = "yarn run test"
+build = "yarn run build"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[features]
+seeds = false

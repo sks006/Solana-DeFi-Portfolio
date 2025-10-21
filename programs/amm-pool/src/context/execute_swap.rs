@@ -1,27 +1,31 @@
-use anchor_lang::prelude::*;
-use anchor_spl::token::Token;
 use crate::pool_state::PoolState;
+use anchor_lang::prelude::*;
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct ExecuteSwap<'info> {
     #[account(mut)]
     pub pool_state: Account<'info, PoolState>,
 
-    /// user token source (e.g., user's token A associated token account) — payer of amount_in
-    #[account(mut)]
-    pub user_source: AccountInfo<'info>,
+    /// CHECK: Pool authority PDA
+    #[account(seeds = [pool_state.key().as_ref()], bump)]
+    pub pool_authority: AccountInfo<'info>,
 
-    /// user token destination (e.g., user's token B ATA) — receives amount_out
+    /// user token source (token A)
     #[account(mut)]
-    pub user_destination: AccountInfo<'info>,
+    pub user_source: Account<'info, TokenAccount>,
+
+    /// user token destination (token B)
+    #[account(mut)]
+    pub user_destination: Account<'info, TokenAccount>,
 
     /// pool's token A vault
     #[account(mut)]
-    pub pool_vault_a: AccountInfo<'info>,
+    pub pool_vault_a: Account<'info, TokenAccount>,
 
     /// pool's token B vault
     #[account(mut)]
-    pub pool_vault_b: AccountInfo<'info>,
+    pub pool_vault_b: Account<'info, TokenAccount>,
 
     /// token program
     pub token_program: Program<'info, Token>,

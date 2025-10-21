@@ -1,13 +1,19 @@
-# solana-defi-portfolio/programs/amm-pool/Cargo.toml
-
 [package]
 name = "amm-pool"
 version = "0.1.0"
+description = "AMM Pool Program"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
+name = "amm_pool"
 
 [dependencies]
 anchor-lang = "0.32.1"
 anchor-spl = "0.32.1"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["anchor-lang/cpi"]
