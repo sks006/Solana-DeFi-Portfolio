@@ -1,4 +1,4 @@
-# 📂 Total Project Tree — Solana DeFi Portfolio + Swap Simulator with Risk Alerts with Ai.
+# 📂 Total Project Tree — Solana DeFi Portfolio with Risk Alerts Ai.
 
 solana-defi-portfolio/
 
