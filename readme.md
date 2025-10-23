@@ -21,6 +21,11 @@ solana-defi-portfolio/
 
                     🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
 
+                    Live frontend link
+                    ~~~
+                    https://solana-defi-portfolio.vercel.app/
+                    ~~~
+
 ├── frontend/                   # React + shadcn/ui + Vite
 
 │   ├── index.html
