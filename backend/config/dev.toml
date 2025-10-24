@@ -1,0 +1,27 @@
+# backend/config/dev.toml
+[server]
+port = 3000
+host = "0.0.0.0"
+log_level = "debug"
+
+[solana]
+rpc_url = "https://api.devnet.solana.com"
+ws_url = "wss://api.devnet.solana.com"
+program_id = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[ai_service]
+url = "http://localhost:8001"
+timeout_seconds = 30
+
+[database]
+url = "postgresql://user:pass@localhost:5432/defi_portfolio"
+max_connections = 20
+
+[pipeline]
+batch_size = 10
+batch_timeout_ms = 100
+max_queue_size = 1000
+
+[rules_engine]
+cooldown_minutes = 60
+alert_retention_days = 30

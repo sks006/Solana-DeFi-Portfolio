@@ -1,0 +1,381 @@
+// backend/src/services/solana_client.rs
+use base64::engine::general_purpose::STANDARD as base64_standard;
+use base64::Engine as _;
+use bs58; // for base58 if needed
+use reqwest;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use solana_account_decoder::{UiAccountData, UiAccountEncoding};
+use solana_client::{
+    nonblocking::rpc_client::RpcClient,
+    rpc_request::TokenAccountsFilter,
+    rpc_response::RpcKeyedAccount,
+};
+use solana_program::program_pack::Pack;
+use solana_sdk::{
+    commitment_config::CommitmentConfig,
+    pubkey::Pubkey,
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+};
+use std::str::FromStr;
+
+use crate::config::SolanaConfig;
+
+// Type alias for thread-safe errors
+type ThreadSafeError = Box<dyn std::error::Error + Send + Sync>;
+
+// Jupiter API response structures
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JupiterQuote {
+    pub input_mint: String,
+    pub output_mint: String,
+    pub in_amount: String,
+    pub out_amount: String,
+    pub other_amount_threshold: String,
+    pub swap_mode: String,
+    pub slippage_bps: u64,
+    pub platform_fee: Option<String>,
+    pub price_impact_pct: Option<String>,
+    pub route_plan: Vec<RoutePlan>,
+    pub context_slot: u64,
+    pub time_taken: Option<f64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RoutePlan {
+    pub swap_info: SwapInfo,
+    pub percent: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SwapInfo {
+    pub amm_key: String,
+    pub label: Option<String>,
+    pub input_mint: String,
+    pub output_mint: String,
+    pub in_amount: String,
+    pub out_amount: String,
+    pub fee_amount: String,
+    pub fee_mint: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JupiterSwapResponse {
+    pub swap_transaction: String,
+}
+
+// Step 1: Token account information
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenAccountInfo {
+    pub mint: String,
+    pub owner: String,
+    pub amount: f64,
+    pub decimals: u8,
+}
+
+// Step 2: Solana client service
+pub struct SolanaClient {
+    rpc_client: RpcClient,
+    program_id: String,
+}
+
+impl SolanaClient {
+    pub fn new(config: &SolanaConfig) -> Self {
+        tracing::info!("🔗 Connecting to Solana RPC: {}", config.rpc_url);
+        tracing::info!("📝 Using program ID: {}", config.program_id);
+
+        let commitment = match config.commitment.as_str() {
+            "processed" => CommitmentConfig::processed(),
+            "confirmed" => CommitmentConfig::confirmed(),
+            "finalized" => CommitmentConfig::finalized(),
+            _ => {
+                tracing::warn!(
+                    "Unknown commitment level: {}, using 'confirmed'",
+                    config.commitment
+                );
+                CommitmentConfig::confirmed()
+            }
+        };
+
+        Self {
+            rpc_client: RpcClient::new_with_commitment(config.rpc_url.clone(), commitment),
+            program_id: config.program_id.clone(),
+        }
+    }
+
+    // Step 3: Get token accounts for a wallet
+    pub async fn get_token_accounts(
+        &self,
+        wallet: &str,
+    ) -> Result<Vec<TokenAccountInfo>, ThreadSafeError> {
+        let pubkey = Pubkey::from_str(wallet)?;
+
+        let accounts = self
+            .rpc_client
+            .get_token_accounts_by_owner(&pubkey, TokenAccountsFilter::ProgramId(spl_token::id()))
+            .await?;
+
+        let mut token_accounts = Vec::new();
+
+        for RpcKeyedAccount { account, .. } in accounts {
+            match &account.data {
+                UiAccountData::Json(parsed_data) => {
+                    if let Some(info) = parsed_data.parsed.get("info") {
+                        let mint = info.get("mint").and_then(|v| v.as_str()).unwrap_or("");
+                        let owner = info.get("owner").and_then(|v| v.as_str()).unwrap_or("");
+                        let amount = info
+                            .get("tokenAmount")
+                            .and_then(|t| t.get("amount"))
+                            .and_then(|a| a.as_str())
+                            .and_then(|s| s.parse::<f64>().ok())
+                            .unwrap_or(0.0);
+                        let decimals = info
+                            .get("tokenAmount")
+                            .and_then(|t| t.get("decimals").and_then(|d| d.as_u64()))
+                            .unwrap_or(0) as u8;
+
+                        token_accounts.push(TokenAccountInfo {
+                            mint: mint.to_string(),
+                            owner: owner.to_string(),
+                            amount,
+                            decimals,
+                        });
+                    }
+                }
+                UiAccountData::LegacyBinary(data) => {
+                    // LegacyBinary is base64 encoded historically; decode and unpack like Binary::Base64
+                    let raw_data = base64_standard.decode(&data)?;
+                    let token_account = spl_token::state::Account::unpack(&raw_data)?;
+
+                    // Push a best-effort account parsed from legacy binary; decimals are not available here
+                    token_accounts.push(TokenAccountInfo {
+                        mint: token_account.mint.to_string(),
+                        owner: token_account.owner.to_string(),
+                        amount: token_account.amount as f64, // precision caution
+                        decimals: 0, // decimals aren't stored in the token account; fetch from mint if needed
+                    });
+                }
+                UiAccountData::Binary(data, encoding) => {
+                    let raw_data = match encoding {
+                        UiAccountEncoding::Base64 => base64_standard.decode(&data)?,
+                        UiAccountEncoding::Base58 => bs58::decode(&data).into_vec()?,
+                        _ => {
+                            return Err("Unsupported encoding".into());
+                        }
+                    };
+
+                    let token_account = spl_token::state::Account::unpack(&raw_data)?;
+
+                    // Push a best-effort account parsed from binary; decimals are not available here
+                    token_accounts.push(TokenAccountInfo {
+                        mint: token_account.mint.to_string(),
+                        owner: token_account.owner.to_string(),
+                        amount: token_account.amount as f64, // precision caution
+                        decimals: 0, // decimals aren't stored in the token account; fetch from mint if needed
+                    });
+                }
+                _ => {} // Handle other variants if needed
+            }
+        }
+
+        Ok(token_accounts)
+    }
+
+    // Step 4: Execute swap transaction using Jupiter
+    pub async fn execute_swap_transaction(
+        &self,
+        wallet: &str,
+        input_mint: &str,
+        output_mint: &str,
+        amount: f64,
+        slippage_bps: u64,
+    ) -> Result<String, ThreadSafeError> {
+        tracing::info!(
+            "🔄 Executing swap: {} {} -> {} (slippage: {} bps, wallet: {})",
+            amount,
+            input_mint,
+            output_mint,
+            slippage_bps,
+            wallet
+        );
+
+        // Convert amount to string (Jupiter API expects string for large numbers)
+        let amount_string = format!("{:.0}", amount * (10f64).powi(6)); // Assuming 6 decimals, adjust as needed
+
+        // Step 1: Get quote from Jupiter
+        let quote = self
+            .get_jupiter_quote(input_mint, output_mint, &amount_string, slippage_bps)
+            .await?;
+
+        tracing::info!(
+            "📊 Jupiter quote received: {} -> {}",
+            quote.in_amount,
+            quote.out_amount
+        );
+
+        // Step 2: Get swap transaction from Jupiter
+        let swap_response = self
+            .get_jupiter_swap_transaction(wallet, &quote, slippage_bps)
+            .await?;
+
+        // Step 3: Send the transaction
+        let signature = self
+            .send_jupiter_transaction(&swap_response.swap_transaction)
+            .await?;
+
+        tracing::info!(
+            "✅ Swap transaction submitted with signature: {}",
+            signature
+        );
+
+        Ok(signature)
+    }
+
+    // Get quote from Jupiter API
+    async fn get_jupiter_quote(
+        &self,
+        input_mint: &str,
+        output_mint: &str,
+        amount: &str,
+        slippage_bps: u64,
+    ) -> Result<JupiterQuote, ThreadSafeError> {
+        let client = reqwest::Client::new();
+
+        let url = format!(
+            "https://quote-api.jup.ag/v6/quote?inputMint={}&outputMint={}&amount={}&slippageBps={}",
+            input_mint, output_mint, amount, slippage_bps
+        );
+
+        let response = client.get(&url).send().await?;
+
+        if !response.status().is_success() {
+            return Err(format!("Jupiter API error: {}", response.status()).into());
+        }
+
+        let quote: JupiterQuote = response.json().await?;
+        Ok(quote)
+    }
+
+    // Get swap transaction from Jupiter API
+    async fn get_jupiter_swap_transaction(
+        &self,
+        wallet: &str,
+        quote: &JupiterQuote,
+        slippage_bps: u64,
+    ) -> Result<JupiterSwapResponse, ThreadSafeError> {
+        let client = reqwest::Client::new();
+
+        let url = "https://quote-api.jup.ag/v6/swap".to_string();
+
+        let request_body = json!({
+            "quoteResponse": quote,
+            "userPublicKey": wallet,
+            "slippageBps": slippage_bps,
+        });
+
+        let response = client
+            .post(&url)
+            .header("Content-Type", "application/json")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await?;
+            return Err(format!("Jupiter swap API error: {}", error_text).into());
+        }
+
+        let swap_response: JupiterSwapResponse = response.json().await?;
+        Ok(swap_response)
+    }
+
+    // Send the Jupiter transaction to Solana network
+    async fn send_jupiter_transaction(
+        &self,
+        swap_transaction: &str,
+    ) -> Result<String, ThreadSafeError> {
+        // Decode the base64 transaction
+        let transaction_data = base64_standard.decode(swap_transaction)?;
+
+        // Deserialize the transaction using bincode
+        let transaction: Transaction = bincode::deserialize(&transaction_data)?;
+
+        // Send the transaction
+        let signature = self.rpc_client.send_transaction(&transaction).await?;
+
+        Ok(signature.to_string())
+    }
+
+    // Alternative method if you need to sign the transaction first
+    async fn execute_swap_transaction_with_signer(
+        &self,
+        wallet_keypair: &Keypair,
+        input_mint: &str,
+        output_mint: &str,
+        amount: f64,
+        slippage_bps: u64,
+    ) -> Result<String, ThreadSafeError> {
+        let amount_string = format!("{:.0}", amount * (10f64).powi(6));
+        let wallet_address = wallet_keypair.pubkey().to_string();
+
+        // Get quote
+        let quote = self
+            .get_jupiter_quote(input_mint, output_mint, &amount_string, slippage_bps)
+            .await?;
+
+        // Get swap transaction
+        let swap_response = self
+            .get_jupiter_swap_transaction(&wallet_address, &quote, slippage_bps)
+            .await?;
+
+        // Decode and sign transaction
+        let transaction_data = base64_standard.decode(&swap_response.swap_transaction)?;
+        let mut transaction: Transaction = bincode::deserialize(&transaction_data)?;
+        
+        // Get recent blockhash
+        let recent_blockhash = self.rpc_client.get_latest_blockhash().await?;
+        
+        // Sign the transaction
+        transaction.sign(&[wallet_keypair], recent_blockhash);
+
+        // Send signed transaction
+        let signature = self.rpc_client.send_transaction(&transaction).await?;
+
+        Ok(signature.to_string())
+    }
+}
+
+// Step 22: Transaction info struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TransactionInfo {
+    pub signature: String,
+    pub slot: u64,
+    pub timestamp: Option<i64>,
+    pub err: Option<solana_sdk::transaction::TransactionError>,
+}
+
+// Step 23: Program account info struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProgramAccountInfo {
+    pub pubkey: String,
+    pub account: solana_sdk::account::Account,
+}
+
+// Step 24: Token balance struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenBalance {
+    pub mint: String,
+    pub balance: f64,
+    pub decimals: u8,
+}
+
+// Step 25: Implement Clone for SolanaClient
+impl Clone for SolanaClient {
+    fn clone(&self) -> Self {
+        Self {
+            rpc_client: RpcClient::new(self.rpc_client.url().to_string()),
+            program_id: self.program_id.clone(),
+        }
+    }
+}
