@@ -1,25 +1,32 @@
-# 📂 Total Project Tree — Solana DeFi Portfolio + Swap Simulator with Risk Alerts with Ai.
+# 📂 Total Project Tree — Solana DeFi Portfolio with Risk Alerts Ai.
 
 solana-defi-portfolio/
 
-│
+├── Makefile                      # dev, test, start-demo targets
 
-├── Cargo.toml                  # Root workspace config (Rust crates)
+├── README.md                     # short overview + demo instructions
 
-├── Makefile                    # Build/test/deploy commands
+├── Dockerfile                    # backend + AI service
 
-├── README.md                   # Project overview
-
-├── LICENSE
-
-├── Dockerfile
-
-├── docker-compose.yml
+├── docker-compose.yml            # services: backend, ai, db, replay
 
 ├── .gitignore
 
+├── scripts/
+
+│   ├── replay_events.sh          # demo + load test
+
+│   └── warm_models.sh            # AI bootstrapping
+
+
                     🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
 
+                  
+
+  Live frontend link
+                  
+                    https://solana-defi-portfolio.vercel.app/
+                  
 ├── frontend/                   # React + shadcn/ui + Vite
 
 │   ├── index.html
@@ -72,7 +79,7 @@ useRiskAlerts
 
                      🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
-├── backend/                    # Leptos + Rust API + WebSocket
+├── backend/
 
 │   ├── Cargo.toml
 
@@ -80,31 +87,123 @@ useRiskAlerts
 
 │   │   ├── main.rs
 
-│   │   ├── server_functions/   # portfolio.rs, swap.rs, risk.rs
+│   │   ├── config/
 
-│   │   ├── ws/                 # manager.rs, messages.rs
+│   │    │    ├── mod.rs
 
-│   │   ├── services/           # solana_client.rs, amm_math.rs,
-risk_service.rs, ai_alerts.rs
+│   │    │   ├── server.rs
 
-│   │   ├── models/             # Portfolio, SwapQuote, RiskAlert
+│   │    │    ├── solana.rs
 
-│   │   ├── database/           # connection.rs, migrations/
+│   │    │   ├── ai.rs
 
-│   │   └── utils/              # error.rs, validation.rs, math.rs
+│   │    │    ├── database.rs
 
-│   ├── config/                 # default.toml, dev.toml,
-production.toml
+│   │    │   ├── pipeline.rs
 
-│   ├── tests/
+│   │    │    └── risk.rs
 
-│   │   ├── unit/
+│   │   ├── server_functions/
 
-│   │   ├── integration/
+│   │   │   ├── portfolio.rs
 
-│   │   └── load/
+│   │   │   ├── swap.rs
 
-│   └── benches/                # Performance benchmarks
+│   │   │   └── risk.rs
+
+│   │   ├── ws/
+
+│   │   │   ├── hub.rs
+
+│   │   │   └── client.rs
+
+│   │   ├── ingestion/
+
+│   │   │   ├── solana_ws.rs
+
+│   │   │   └── normalizer.rs
+
+│   │   ├── pipeline/
+
+│   │   │   ├── mpsc_queue.rs
+
+│   │   │   ├── micro_batcher.rs
+
+│   │   │   └── rules_engine.rs
+
+│   │   ├── services/
+
+│   │   │   ├── solana_client.rs
+
+│   │   │   ├── ai_client.rs
+
+│   │   │   └── metrics.rs
+
+│   │   ├── models/
+
+│   │   │   ├── event.rs
+
+│   │   │   └── risk_alert.rs
+
+│   │   └── utils/
+
+│   │       └── telemetry.rs
+
+│   ├── config/
+
+│   │   └── dev.toml
+
+│   └── tests/
+
+│       └── integration/          # backend + ai + replay
+                   
+                 🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
+                   
+├── ai/
+
+│   ├── python/
+
+│   │   ├── requirements.txt
+
+│   │   ├── train_model.py
+
+│   │   ├── predict_risk.py
+
+│   │   ├── models/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── risk_classifier.py
+
+│   │   │   └── anomaly_detector.py
+
+│   │   ├── data/
+
+│   │   │   ├── process_training_data.py
+
+│   │   │   └── feature_engineering.py
+
+│   │   └── config/
+
+│   │       └── model_config.yaml
+
+│   ├── models/
+
+│   │   ├── risk_classifier.onnx
+
+│   │   ├── anomaly_detector.joblib
+
+│   │   └── scaler.pkl
+
+│   ├── config/
+
+│   │   └── ai_config.toml
+
+│   └── tests/
+
+│       ├── test_risk_predictor.rs
+
+│       └── test_anomaly_detector.rs
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
@@ -167,25 +266,6 @@ production.toml
 
 │           └── position_test.rs
 
-            🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-
-├── ai/                         # AI risk alert logic
-
-│   ├── model/
-
-│   │   ├── train.py            # ML model training (optional)
-
-│   │   ├── predict.py          # Inference logic
-
-│   │   └── risk_model.pkl      # Saved model
-
-│   ├── data/
-
-│   │   └── sample_trades.csv   # Historical trade data
-
-│   └── README.md               # AI module overview
-
-│
 
 ├── docs/                       # Showcase-ready documentation
 
@@ -206,5 +286,7 @@ production.toml
 └── .github/                    # workflows
 
 
-
+~~~
+install frontend :npm install
+~~~
 
