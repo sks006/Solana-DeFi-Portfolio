@@ -1,0 +1,26 @@
+# ai/python/config/settings.yaml
+app:
+  name: "Solana DeFi Risk AI"
+  version: "1.0.0"
+  environment: "development"
+  debug: true
+
+server:
+  host: "0.0.0.0"
+  port: 8001
+  workers: 1
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+risk:
+  thresholds:
+    high: 60
+    medium: 30
+    low: 05
+  weights:
+    concentration: 0.4
+    volatility: 0.3
+    leverage: 0.2
+    diversification: 0.1

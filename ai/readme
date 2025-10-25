@@ -1,0 +1,72 @@
+ai/
+
+├── python/
+
+│   ├── app/
+
+│   │   ├── __init__.py
+
+│   │   ├── main.py
+
+│   │   ├── api/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── endpoints/
+
+│   │   │   │   ├── __init__.py
+
+│   │   │   │   ├── portfolio.py
+
+│   │   │   │   ├── trade.py
+
+│   │   │   │   └── health.py
+
+│   │   │   └── dependencies.py
+│   │   ├── core/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── config.py
+
+│   │   │   └── security.py
+
+│   │   ├── services/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── risk_service.py
+
+│   │   │   └── anomaly_service.py
+
+│   │   ├── models/
+
+│   │   │   ├── __init__.py
+
+│   │   │   ├── schemas.py
+
+│   │   │   └── domain.py
+
+│   │   └── utils/
+
+│   │       ├── __init__.py
+
+│   │       ├── logging.py
+
+│   │       └── helpers.py
+
+│   ├── tests/
+
+│   │   ├── __init__.py
+
+│   │   ├── test_api.py
+
+│   │   ├── test_services.py
+
+│   │   └── conftest.py
+
+│   ├── requirements.txt
+
+│   └── config/
+
+│       └── settings.yaml

@@ -1,0 +1,21 @@
+# ai/python/requirements.txt
+fastapi==0.120.0
+uvicorn==0.38.0
+pydantic==2.12.3
+pydantic-settings==2.1.0
+python-multipart==0.0.20
+python-dotenv==1.0.0
+PyYAML==6.0.1
+psutil==7.1.1
+
+# Testing
+pytest==8.4.2
+pytest-asyncio==1.2.0
+httpx==0.28.1
+pytest-cov==7.0.0
+
+# Development
+black==25.9.0
+isort==7.0.0
+mypy==1.7.1
+flake8==7.3.0
