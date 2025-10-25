@@ -285,8 +285,41 @@ useRiskAlerts
 
 └── .github/                    # workflows
 
-
+### install frontend
 ~~~
-install frontend :npm install
+npm install
 ~~~
 
+### Build in debug mode (faster for development)
+~~~
+ cargo build
+~~~
+### Build in release mode (optimized for production)
+~~~
+ cargo build --release
+~~~
+
+### Run in debug mode
+~~~
+ cargo run
+~~~
+### Run in release mode
+~~~
+ cargo run --release
+~~~
+### Run tests
+~~~
+ cargo test
+~~~
+### Check for compilation errors without building
+~~~
+ cargo check
+~~~
+### Format code
+~~~
+ cargo fmt
+~~~
+### Check code quality
+~~~
+ cargo clippy
+~~~
