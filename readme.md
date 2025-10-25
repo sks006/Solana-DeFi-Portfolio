@@ -163,47 +163,78 @@ useRiskAlerts
 
 │   ├── python/
 
-│   │   ├── requirements.txt
-
-│   │   ├── train_model.py
-
-│   │   ├── predict_risk.py
-
-│   │   ├── models/
+│   │   ├── app/
 
 │   │   │   ├── __init__.py
 
-│   │   │   ├── risk_classifier.py
+│   │   │   ├── main.py                          # ✅ RUNNING on port 8001
 
-│   │   │   └── anomaly_detector.py
+│   │   │   ├── api/
 
-│   │   ├── data/
+│   │   │   │   ├── __init__.py
 
-│   │   │   ├── process_training_data.py
+│   │   │   │   ├── dependencies.py
 
-│   │   │   └── feature_engineering.py
+│   │   │   │   └── endpoints/
 
-│   │   └── config/
+│   │   │   │       ├── __init__.py
 
-│   │       └── model_config.yaml
+│   │   │   │       ├── health.py
 
-│   ├── models/
+│   │   │   │       ├── portfolio.py
 
-│   │   ├── risk_classifier.onnx
+│   │   │   │       └── trade.py
 
-│   │   ├── anomaly_detector.joblib
+│   │   │   ├── core/
 
-│   │   └── scaler.pkl
+│   │   │   │   ├── __init__.py
 
-│   ├── config/
+│   │   │   │   ├── config.py                    # ⚠️ has import issue
 
-│   │   └── ai_config.toml
+│   │   │   │   └── security.py
 
-│   └── tests/
+│   │   │   ├── services/
 
-│       ├── test_risk_predictor.rs
+│   │   │   │   ├── __init__.py
 
-│       └── test_anomaly_detector.rs
+│   │   │   │   ├── risk_service.py              # ✅ fixed syntax
+
+│   │   │   │   └── anomaly_service.py
+
+│   │   │   ├── models/
+
+│   │   │   │   ├── __init__.py
+
+│   │   │   │   ├── schemas.py
+
+│   │   │   │   └── domain.py
+
+│   │   │   └── utils/
+
+│   │   │       ├── __init__.py
+
+│   │   │       ├── logging.py
+
+│   │   │       └── helpers.py
+
+│   │   ├── tests/
+
+│   │   │   ├── __init__.py
+
+│   │   │   └── test_installation.py             # ✅ working
+
+│   │   ├── check_compatibility.py               # ✅ working
+
+│   │   ├── check_files.py                       # ✅ working
+
+│   │   ├── test_api_simple.py                   # ⚠️ import issue
+
+│   │   └── requirements.txt                     # ✅ installed
+
+│   ├── test_ultra_simple.py                     # ✅ original test
+
+│   └── Dockerfile
+
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
