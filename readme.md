@@ -330,6 +330,11 @@ npm install
  cargo build --release
 ~~~
 
+### Ai Backend run
+~~~~
+uvicorn app.main:app
+~~~~
+
 ### Run in debug mode
 ~~~
  cargo run
