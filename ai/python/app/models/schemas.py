@@ -5,11 +5,21 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 
+
 class RiskLevel(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return str(self.value)
+    
+    def __json__(self):
+        return str(self.value)
+    
 class AlertSeverity(str, Enum):
     INFO = "info"
     LOW = "low"
@@ -17,7 +27,7 @@ class AlertSeverity(str, Enum):
     HIGH = "high"
 
 class Position(BaseModel):
-    symbol: str
+    mint: str
     amount: float
     value_usd: float
     volatility: float = 0.02
@@ -32,11 +42,10 @@ class Position(BaseModel):
         return self.model_dump()
 
 class PortfolioAnalysisRequest(BaseModel):
-    wallet: str = Field(..., description="Wallet address", example="wallet_123abc")
-    positions: List[Position] = Field(..., description="Portfolio positions")
-    total_value: float = Field(..., description="Total portfolio value in USD", example=5000.0)
-    historical_snapshots: Optional[List[Dict]] = Field([], description="Historical data")
-    leverage_ratio: float = Field(1.0, description="Portfolio leverage", example=1.5)
+    wallet: str = Field(..., description="Wallet address to analyze")
+    positions: List[Position] = Field(..., description="List of portfolio positions with amounts and values")
+    total_value: float = Field(..., gt=0, description="Total portfolio value in USD")
+    leverage_ratio: float = Field(..., gt=0, description="Portfolio leverage ratio (must be > 0)")
 
 class TradeAnalysisRequest(BaseModel):
     wallet: str = Field(..., description="Wallet address", example="wallet_123abc")

@@ -1,7 +1,7 @@
-// backend/src/services/ai_client.rs
 use crate::config::AIConfig;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use anyhow::Result;
 
 // Step 1: Risk analysis result
 #[derive(Debug, Serialize, Deserialize)]
@@ -11,13 +11,23 @@ pub struct RiskAnalysis {
     pub recommendations: Vec<String>,
 }
 
+// ✅ New: Detailed response from AI service
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RiskAnalysisResponse {
+    pub risk_score: f64,
+    pub risk_level: String,
+    pub alerts: Option<Vec<RiskAlert>>,
+
+    pub recommendations: Option<Vec<String>>,
+}
+
 // Step 2: Risk alert from AI service
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RiskAlert {
     pub severity: String,
     pub message: String,
-    pub metric: String,
-    pub value: f64,
+    pub metric: Option<String>,
+    pub value: Option<f64>,
 }
 
 // Step 3: AI client service
@@ -57,111 +67,53 @@ impl AIClient {
         }
     }
 
-    // Update methods to check if enabled
-    pub async fn assess_portfolio_risk(
+    // ✅ Updated: Analyze position risk (real AI call)
+    pub async fn analyze_portfolio_risk(
         &self,
-        _wallet: &str,
-        positions: &[crate::server_functions::portfolio::Position],
-    ) -> Result<f64, Box<dyn std::error::Error>> {
-        if !self.enabled {
-            return Ok(self.calculate_fallback_risk_score(positions));
-        }
-
-        // If enabled, attempt to call remote AI service; fall back on local heuristic on any failure.
-        let features = self.extract_portfolio_features(positions);
-        let url = format!("{}/assess", self.base_url.trim_end_matches('/'));
-
-        let resp = self.client.post(&url).json(&features).send().await;
-
-        match resp {
-            Ok(r) if r.status().is_success() => {
-                let json: serde_json::Value = r.json().await.unwrap_or(serde_json::json!({}));
-                if let Some(score) = json.get("risk_score").and_then(|v| v.as_f64()) {
-                    return Ok(score);
-                }
-                Ok(self.calculate_fallback_risk_score(positions))
-            }
-            _ => Ok(self.calculate_fallback_risk_score(positions)),
-        }
-    }
-
-    // Step 7: Analyze position risk
-    pub async fn analyze_position_risk(
-        &self,
-        _wallet: &str,
+        wallet: &str,
         positions: &[crate::server_functions::risk::PositionForAnalysis],
-    ) -> Result<RiskAnalysis, Box<dyn std::error::Error>> {
-        // Mock implementation
-        let risk_score = self.calculate_fallback_risk_score_from_analysis(positions);
-
-        let alerts = if risk_score > 0.7 {
-            vec![RiskAlert {
-                severity: "HIGH".to_string(),
-                message: "High concentration risk detected".to_string(),
-                metric: "concentration".to_string(),
-                value: 0.85,
-            }]
-        } else {
-            vec![]
-        };
-
-        let recommendations = vec![
-            "Consider diversifying across different asset types".to_string(),
-            "Set stop-loss orders for high-risk positions".to_string(),
-        ];
-
-        Ok(RiskAnalysis {
-            risk_score,
-            alerts,
-            recommendations,
-        })
-    }
-
-    // Step 8: Extract portfolio features for AI model
-    fn extract_portfolio_features(
-        &self,
-        positions: &[crate::server_functions::portfolio::Position],
-    ) -> std::collections::HashMap<String, f64> {
-        let total_value: f64 = positions.iter().map(|p| p.value_usd).sum();
-        let max_position = positions.iter().map(|p| p.value_usd).fold(0.0, f64::max);
-
-        let concentration = if total_value > 0.0 {
-            max_position / total_value
-        } else {
-            0.0
-        };
-
-        let mut features = std::collections::HashMap::new();
-        features.insert("total_value".to_string(), total_value);
-        features.insert("concentration".to_string(), concentration);
-        features.insert("num_positions".to_string(), positions.len() as f64);
-
-        features
-    }
-
-    // Step 9: Fallback risk calculation
-    fn calculate_fallback_risk_score(
-        &self,
-        positions: &[crate::server_functions::portfolio::Position],
-    ) -> f64 {
-        let total_value: f64 = positions.iter().map(|p| p.value_usd).sum();
-        if total_value == 0.0 {
-            return 0.0;
+        total_value: f64,
+        leverage_ratio: f64,
+    ) -> Result<RiskAnalysisResponse> {
+        if !self.enabled {
+            tracing::warn!("⚠️ AI service disabled, using fallback");
+            return Ok(RiskAnalysisResponse {
+                risk_score: self.calculate_fallback_risk_score_from_analysis(positions),
+                risk_level: "fallback".to_string(),
+                alerts: Some(vec![RiskAlert {
+                    severity: "info".to_string(),
+                    message: "AI service disabled, using fallback risk calculation.".to_string(),
+                    metric: None,
+                    value: None,
+                }]),
+                recommendations: Some(vec!["Enable AI service for live analysis".to_string()]),
+            });
         }
 
-        let max_position = positions.iter().map(|p| p.value_usd).fold(0.0, f64::max);
+        let payload = serde_json::json!({
+            "wallet": wallet,
+            "positions": positions,
+            "total_value": total_value,
+            "leverage_ratio": leverage_ratio
+        });
 
-        let concentration = max_position / total_value;
+        let url = format!("{}/analyze/portfolio", self.base_url.trim_end_matches('/'));
+        tracing::info!("📡 Sending request to AI: {}", url);
 
-        // Simple risk heuristic
-        if concentration > 0.5 {
-            0.8
-        } else if concentration > 0.3 {
-            0.5
+        let response = self.client.post(&url).json(&payload).send().await?;
+
+        if response.status().is_success() {
+            let parsed: RiskAnalysisResponse = response.json().await?;
+            tracing::info!("✅ AI analysis success: score = {}", parsed.risk_score);
+            Ok(parsed)
         } else {
-            0.2
+            let err_text = response.text().await.unwrap_or_default();
+            tracing::error!("❌ AI request failed: {}", err_text);
+            Err(anyhow::anyhow!("AI service error: {}", err_text))
         }
     }
+
+    // (Keep your existing fallback + helper functions below)
 
     fn calculate_fallback_risk_score_from_analysis(
         &self,

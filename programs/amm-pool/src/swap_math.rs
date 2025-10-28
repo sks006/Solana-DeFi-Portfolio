@@ -47,7 +47,7 @@ pub fn execute_swap(
     };
     let seeds = &[
         &ctx.accounts.pool_state.key().to_bytes()[..32],
-        &[ctx.accounts.pool_state.bump],
+        &[ctx.accounts.pool_state.authority_bump],
     ];
     let signer_seeds = &[&seeds[..]];
     let cpi_ctx = CpiContext::new_with_signer(

@@ -2,7 +2,6 @@
 use base64::engine::general_purpose::STANDARD as base64_standard;
 use base64::Engine as _;
 use bs58; // for base58 if needed
-use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use solana_account_decoder::{UiAccountData, UiAccountEncoding};
@@ -21,6 +20,11 @@ use solana_sdk::{
 use std::str::FromStr;
 
 use crate::config::SolanaConfig;
+
+use anyhow::Result;
+use reqwest::Client as HttpClient;
+use serde_json::Value;
+
 
 // Type alias for thread-safe errors
 type ThreadSafeError = Box<dyn std::error::Error + Send + Sync>;
@@ -78,6 +82,7 @@ pub struct TokenAccountInfo {
 pub struct SolanaClient {
     rpc_client: RpcClient,
     program_id: String,
+     http: HttpClient,
 }
 
 impl SolanaClient {
@@ -98,10 +103,11 @@ impl SolanaClient {
             }
         };
 
-        Self {
-            rpc_client: RpcClient::new_with_commitment(config.rpc_url.clone(), commitment),
-            program_id: config.program_id.clone(),
-        }
+      Self {
+    rpc_client: RpcClient::new_with_commitment(config.rpc_url.clone(), commitment),
+    program_id: config.program_id.clone(),
+    http: HttpClient::new(), // ✅ Initialize HTTP client
+}
     }
 
     // Step 3: Get token accounts for a wallet
@@ -376,6 +382,55 @@ impl Clone for SolanaClient {
         Self {
             rpc_client: RpcClient::new(self.rpc_client.url().to_string()),
             program_id: self.program_id.clone(),
+             http: HttpClient::new(), // ✅ Clone HTTP client
+        }
+    }
+}
+
+// ✅ Step 26: Dynamic volatility fetcher (Coingecko-based)
+impl SolanaClient {
+    /// Fetch 24h volatility (absolute % price change) for a given token mint.
+    /// Uses Coingecko for public data; falls back to default if unavailable.
+    pub async fn get_token_volatility(&self, mint: &str) -> f64 {
+        // Map common mints → Coingecko IDs
+        let (coingecko_id, default_vol) = match mint {
+            // Wrapped SOL (Devnet/Mainnet)
+            "So11111111111111111111111111111111111111112" | "So11111111111111111111111111111111111111111" => ("solana", 0.05),
+            // USDC stablecoin
+            "Es9vMFrzaCERz8iYwByJ3Q6sX6ixSeKuuNHYsYAGP6X" => ("usd-coin", 0.002),
+            // Add more mints if your app supports them
+            _ => ("solana", 0.05),
+        };
+
+        let url = format!(
+            "https://api.coingecko.com/api/v3/coins/{}/market_chart?vs_currency=usd&days=1",
+            coingecko_id
+        );
+
+        // Fetch JSON safely
+        let response = match self.http.get(&url).send().await {
+            Ok(r) => r,
+            Err(_) => return default_vol,
+        };
+
+        let json: Value = match response.json().await {
+            Ok(j) => j,
+            Err(_) => return default_vol,
+        };
+
+        let prices = match json.get("prices").and_then(|v| v.as_array()) {
+            Some(p) if p.len() >= 2 => p,
+            _ => return default_vol,
+        };
+
+        // Compute absolute 24h price change
+        let first = prices.first().and_then(|p| p.get(1)).and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let last = prices.last().and_then(|p| p.get(1)).and_then(|v| v.as_f64()).unwrap_or(0.0);
+
+        if first > 0.0 && last > 0.0 {
+            ((last - first) / first).abs().clamp(0.0, 1.0)
+        } else {
+            default_vol
         }
     }
 }

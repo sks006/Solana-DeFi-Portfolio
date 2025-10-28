@@ -1,0 +1,19 @@
+[provider]
+cluster = "devnet"
+wallet = "C:/Users/seamk/.config/solana/id.json"
+
+[programs.localnet]
+amm_pool = "2YsibxDCmwrkAVVwbdkpN64RNVhnFjvJK5HSaZkdvZta"
+portfolio_program = "4xJGvDE2b5k9qCfSBXrT1a7HYPRxh2AvKHiQA9hm2ryS"
+
+[scripts]
+test = "yarn run test"
+build = "yarn run build"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+
+
+[features]
+seeds = false

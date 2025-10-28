@@ -1,7 +1,6 @@
 // backend/src/ingestion/solana_ws.rs
 use futures_util::{SinkExt, StreamExt};
 use serde_json::json;
-use solana_client::nonblocking::pubsub_client::PubsubClient;
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
 use crate::models::event::PortfolioEvent;

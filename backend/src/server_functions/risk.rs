@@ -1,7 +1,5 @@
-// backend/src/server_functions/risk.rs
 use axum::{extract::State, Json};
 use serde::{Deserialize, Serialize};
-
 use crate::BackendAppState;
 
 // Step 1: Risk analysis request
@@ -9,10 +7,12 @@ use crate::BackendAppState;
 pub struct RiskAnalysisRequest {
     pub wallet: String,
     pub positions: Vec<PositionForAnalysis>,
+    pub total_value: f64,
+    pub leverage_ratio: f64,
 }
 
 // Step 2: Position data for risk analysis
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PositionForAnalysis {
     pub mint: String,
     pub amount: f64,
@@ -53,7 +53,12 @@ pub async fn analyze_position(
     State(state): State<BackendAppState>,
     Json(payload): Json<RiskAnalysisRequest>,
 ) -> Json<serde_json::Value> {
-    tracing::info!("🔍 Analyzing risk for wallet: {}", payload.wallet);
+    tracing::info!(
+        "🔍 Analyzing risk for wallet: {}, total_value: {}, leverage: {}",
+        payload.wallet,
+        payload.total_value,
+        payload.leverage_ratio
+    );
 
     state
         .metrics
@@ -63,19 +68,29 @@ pub async fn analyze_position(
     // Step 6: Use AI service to analyze risk
     let risk_analysis = state
         .ai_client
-        .analyze_position_risk(&payload.wallet, &payload.positions)
+        .analyze_portfolio_risk(
+            &payload.wallet,
+            &payload.positions,
+            payload.total_value,
+            payload.leverage_ratio,
+        )
         .await;
 
     match risk_analysis {
         Ok(analysis) => Json(serde_json::json!({
             "status": "success",
+            "wallet": payload.wallet,
             "risk_score": analysis.risk_score,
+            "risk_level": analysis.risk_level,
             "alerts": analysis.alerts,
             "recommendations": analysis.recommendations,
         })),
-        Err(e) => Json(serde_json::json!({
-            "status": "error",
-            "error": e.to_string()
-        })),
+        Err(e) => {
+            tracing::error!("❌ Risk analysis error: {}", e);
+            Json(serde_json::json!({
+                "status": "error",
+                "error": e.to_string()
+            }))
+        }
     }
 }

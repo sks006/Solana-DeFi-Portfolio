@@ -36,7 +36,7 @@ impl MicroBatcher {
         loop {
             let mut batch = Vec::with_capacity(self.batch_size);
             let mut channel_closed = false;
-            let mut deadline = tokio::time::sleep(self.batch_timeout);
+            let deadline = tokio::time::sleep(self.batch_timeout);
             tokio::pin!(deadline);
 
             // Step 3: Collect events until batch size, timeout, or channel closed

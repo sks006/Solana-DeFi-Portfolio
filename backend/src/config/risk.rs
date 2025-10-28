@@ -1,7 +1,7 @@
 // backend/src/config/risk.rs
 use serde::Deserialize;
 
-use super::{get_env, get_env_parsed};
+use super::get_env_parsed;
 
 // Step 1: Risk engine configuration structure
 #[derive(Debug, Deserialize, Clone)]

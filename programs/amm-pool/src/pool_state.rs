@@ -24,7 +24,8 @@ impl PoolState {
         pool.lp_mint = ctx.accounts.lp_mint.key();
         pool.fee_rate_bps = fee_rate_bps;
         pool.total_liquidity = 0;
-        pool.authority_bump = *ctx.bumps.get("pool_authority").unwrap();
+        pool.authority_bump = ctx.bumps.pool_authority;
+
         Ok(())
     }
 }
