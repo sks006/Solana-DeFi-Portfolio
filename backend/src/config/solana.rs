@@ -1,6 +1,6 @@
 // backend/src/config/solana.rs
 use serde::Deserialize;
-use solana_sdk::commitment_config::CommitmentConfig;
+use solana_rpc_client_api::config::CommitmentConfig;
 
 use super::get_env;
 

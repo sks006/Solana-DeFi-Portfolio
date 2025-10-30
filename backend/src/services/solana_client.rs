@@ -1,18 +1,17 @@
 // backend/src/services/solana_client.rs
 use base64::engine::general_purpose::STANDARD as base64_standard;
 use base64::Engine as _;
-use bs58; // for base58 if needed
+use bs58;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+
 use solana_account_decoder::{UiAccountData, UiAccountEncoding};
 use solana_client::{
-    nonblocking::rpc_client::RpcClient,
-    rpc_request::TokenAccountsFilter,
+    nonblocking::rpc_client::RpcClient, rpc_request::TokenAccountsFilter,
     rpc_response::RpcKeyedAccount,
 };
-use solana_program::program_pack::Pack;
+use solana_rpc_client_api::config::CommitmentConfig; // ✅ Correct import location
 use solana_sdk::{
-    commitment_config::CommitmentConfig,
     pubkey::Pubkey,
     signature::{Keypair, Signer},
     transaction::Transaction,
@@ -22,14 +21,17 @@ use std::str::FromStr;
 use crate::config::SolanaConfig;
 
 use anyhow::Result;
+use borsh::BorshDeserialize; // ✅ Needed for token unpacking
 use reqwest::Client as HttpClient;
 use serde_json::Value;
-
+use spl_token::state::Account as TokenAccount;
 
 // Type alias for thread-safe errors
 type ThreadSafeError = Box<dyn std::error::Error + Send + Sync>;
 
-// Jupiter API response structures
+// =============================
+// Jupiter API response structs
+// =============================
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JupiterQuote {
     pub input_mint: String,
@@ -69,7 +71,9 @@ pub struct JupiterSwapResponse {
     pub swap_transaction: String,
 }
 
-// Step 1: Token account information
+// =============================
+// Token Account Information
+// =============================
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenAccountInfo {
     pub mint: String,
@@ -78,11 +82,13 @@ pub struct TokenAccountInfo {
     pub decimals: u8,
 }
 
-// Step 2: Solana client service
+// =============================
+// Solana Client Service
+// =============================
 pub struct SolanaClient {
     rpc_client: RpcClient,
     program_id: String,
-     http: HttpClient,
+    http: HttpClient,
 }
 
 impl SolanaClient {
@@ -103,14 +109,16 @@ impl SolanaClient {
             }
         };
 
-      Self {
-    rpc_client: RpcClient::new_with_commitment(config.rpc_url.clone(), commitment),
-    program_id: config.program_id.clone(),
-    http: HttpClient::new(), // ✅ Initialize HTTP client
-}
+        Self {
+            rpc_client: RpcClient::new_with_commitment(config.rpc_url.clone(), commitment),
+            program_id: config.program_id.clone(),
+            http: HttpClient::new(),
+        }
     }
 
-    // Step 3: Get token accounts for a wallet
+    // ================================================
+    // Get Token Accounts by Owner
+    // ================================================
     pub async fn get_token_accounts(
         &self,
         wallet: &str,
@@ -149,46 +157,26 @@ impl SolanaClient {
                         });
                     }
                 }
-                UiAccountData::LegacyBinary(data) => {
-                    // LegacyBinary is base64 encoded historically; decode and unpack like Binary::Base64
+                UiAccountData::LegacyBinary(data) | UiAccountData::Binary(data, _) => {
                     let raw_data = base64_standard.decode(&data)?;
-                    let token_account = spl_token::state::Account::unpack(&raw_data)?;
-
-                    // Push a best-effort account parsed from legacy binary; decimals are not available here
+                    let token_account: TokenAccount = BorshDeserialize::try_from_slice(&raw_data)?; // ✅ replaces unpack()
                     token_accounts.push(TokenAccountInfo {
                         mint: token_account.mint.to_string(),
                         owner: token_account.owner.to_string(),
-                        amount: token_account.amount as f64, // precision caution
-                        decimals: 0, // decimals aren't stored in the token account; fetch from mint if needed
+                        amount: token_account.amount as f64,
+                        decimals: 0,
                     });
                 }
-                UiAccountData::Binary(data, encoding) => {
-                    let raw_data = match encoding {
-                        UiAccountEncoding::Base64 => base64_standard.decode(&data)?,
-                        UiAccountEncoding::Base58 => bs58::decode(&data).into_vec()?,
-                        _ => {
-                            return Err("Unsupported encoding".into());
-                        }
-                    };
-
-                    let token_account = spl_token::state::Account::unpack(&raw_data)?;
-
-                    // Push a best-effort account parsed from binary; decimals are not available here
-                    token_accounts.push(TokenAccountInfo {
-                        mint: token_account.mint.to_string(),
-                        owner: token_account.owner.to_string(),
-                        amount: token_account.amount as f64, // precision caution
-                        decimals: 0, // decimals aren't stored in the token account; fetch from mint if needed
-                    });
-                }
-                _ => {} // Handle other variants if needed
+                _ => {}
             }
         }
 
         Ok(token_accounts)
     }
 
-    // Step 4: Execute swap transaction using Jupiter
+    // ================================================
+    // Jupiter Swap Logic
+    // ================================================
     pub async fn execute_swap_transaction(
         &self,
         wallet: &str,
@@ -206,39 +194,29 @@ impl SolanaClient {
             wallet
         );
 
-        // Convert amount to string (Jupiter API expects string for large numbers)
-        let amount_string = format!("{:.0}", amount * (10f64).powi(6)); // Assuming 6 decimals, adjust as needed
+        // Convert amount to string safely
+        let power = 10f64.powi(6);
+        let safe_amount = amount
+            .checked_mul(power)
+            .ok_or("Overflow while calculating amount")?;
+        let amount_string = format!("{:.0}", safe_amount);
 
-        // Step 1: Get quote from Jupiter
         let quote = self
             .get_jupiter_quote(input_mint, output_mint, &amount_string, slippage_bps)
             .await?;
 
-        tracing::info!(
-            "📊 Jupiter quote received: {} -> {}",
-            quote.in_amount,
-            quote.out_amount
-        );
-
-        // Step 2: Get swap transaction from Jupiter
         let swap_response = self
             .get_jupiter_swap_transaction(wallet, &quote, slippage_bps)
             .await?;
 
-        // Step 3: Send the transaction
         let signature = self
             .send_jupiter_transaction(&swap_response.swap_transaction)
             .await?;
 
-        tracing::info!(
-            "✅ Swap transaction submitted with signature: {}",
-            signature
-        );
-
+        tracing::info!("✅ Swap submitted: {}", signature);
         Ok(signature)
     }
 
-    // Get quote from Jupiter API
     async fn get_jupiter_quote(
         &self,
         input_mint: &str,
@@ -246,113 +224,59 @@ impl SolanaClient {
         amount: &str,
         slippage_bps: u64,
     ) -> Result<JupiterQuote, ThreadSafeError> {
-        let client = reqwest::Client::new();
-
         let url = format!(
             "https://quote-api.jup.ag/v6/quote?inputMint={}&outputMint={}&amount={}&slippageBps={}",
             input_mint, output_mint, amount, slippage_bps
         );
 
-        let response = client.get(&url).send().await?;
-
+        let response = self.http.get(&url).send().await?;
         if !response.status().is_success() {
             return Err(format!("Jupiter API error: {}", response.status()).into());
         }
-
-        let quote: JupiterQuote = response.json().await?;
-        Ok(quote)
+        Ok(response.json().await?)
     }
 
-    // Get swap transaction from Jupiter API
     async fn get_jupiter_swap_transaction(
         &self,
         wallet: &str,
         quote: &JupiterQuote,
         slippage_bps: u64,
     ) -> Result<JupiterSwapResponse, ThreadSafeError> {
-        let client = reqwest::Client::new();
-
         let url = "https://quote-api.jup.ag/v6/swap".to_string();
-
-        let request_body = json!({
+        let body = json!({
             "quoteResponse": quote,
             "userPublicKey": wallet,
             "slippageBps": slippage_bps,
         });
 
-        let response = client
+        let res = self
+            .http
             .post(&url)
             .header("Content-Type", "application/json")
-            .json(&request_body)
+            .json(&body)
             .send()
             .await?;
 
-        if !response.status().is_success() {
-            let error_text = response.text().await?;
-            return Err(format!("Jupiter swap API error: {}", error_text).into());
+        if !res.status().is_success() {
+            return Err(format!("Jupiter swap API error: {}", res.text().await?).into());
         }
-
-        let swap_response: JupiterSwapResponse = response.json().await?;
-        Ok(swap_response)
+        Ok(res.json().await?)
     }
 
-    // Send the Jupiter transaction to Solana network
     async fn send_jupiter_transaction(
         &self,
         swap_transaction: &str,
     ) -> Result<String, ThreadSafeError> {
-        // Decode the base64 transaction
         let transaction_data = base64_standard.decode(swap_transaction)?;
-
-        // Deserialize the transaction using bincode
         let transaction: Transaction = bincode::deserialize(&transaction_data)?;
-
-        // Send the transaction
         let signature = self.rpc_client.send_transaction(&transaction).await?;
-
-        Ok(signature.to_string())
-    }
-
-    // Alternative method if you need to sign the transaction first
-    async fn execute_swap_transaction_with_signer(
-        &self,
-        wallet_keypair: &Keypair,
-        input_mint: &str,
-        output_mint: &str,
-        amount: f64,
-        slippage_bps: u64,
-    ) -> Result<String, ThreadSafeError> {
-        let amount_string = format!("{:.0}", amount * (10f64).powi(6));
-        let wallet_address = wallet_keypair.pubkey().to_string();
-
-        // Get quote
-        let quote = self
-            .get_jupiter_quote(input_mint, output_mint, &amount_string, slippage_bps)
-            .await?;
-
-        // Get swap transaction
-        let swap_response = self
-            .get_jupiter_swap_transaction(&wallet_address, &quote, slippage_bps)
-            .await?;
-
-        // Decode and sign transaction
-        let transaction_data = base64_standard.decode(&swap_response.swap_transaction)?;
-        let mut transaction: Transaction = bincode::deserialize(&transaction_data)?;
-        
-        // Get recent blockhash
-        let recent_blockhash = self.rpc_client.get_latest_blockhash().await?;
-        
-        // Sign the transaction
-        transaction.sign(&[wallet_keypair], recent_blockhash);
-
-        // Send signed transaction
-        let signature = self.rpc_client.send_transaction(&transaction).await?;
-
         Ok(signature.to_string())
     }
 }
 
-// Step 22: Transaction info struct
+// =============================
+// Helper Structs
+// =============================
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TransactionInfo {
     pub signature: String,
@@ -361,14 +285,12 @@ pub struct TransactionInfo {
     pub err: Option<solana_sdk::transaction::TransactionError>,
 }
 
-// Step 23: Program account info struct
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProgramAccountInfo {
     pub pubkey: String,
     pub account: solana_sdk::account::Account,
 }
 
-// Step 24: Token balance struct
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenBalance {
     pub mint: String,
@@ -376,29 +298,25 @@ pub struct TokenBalance {
     pub decimals: u8,
 }
 
-// Step 25: Implement Clone for SolanaClient
 impl Clone for SolanaClient {
     fn clone(&self) -> Self {
         Self {
             rpc_client: RpcClient::new(self.rpc_client.url().to_string()),
             program_id: self.program_id.clone(),
-             http: HttpClient::new(), // ✅ Clone HTTP client
+            http: HttpClient::new(),
         }
     }
 }
 
-// ✅ Step 26: Dynamic volatility fetcher (Coingecko-based)
+// =============================
+// Coingecko Volatility Fetcher
+// =============================
 impl SolanaClient {
-    /// Fetch 24h volatility (absolute % price change) for a given token mint.
-    /// Uses Coingecko for public data; falls back to default if unavailable.
     pub async fn get_token_volatility(&self, mint: &str) -> f64 {
-        // Map common mints → Coingecko IDs
         let (coingecko_id, default_vol) = match mint {
-            // Wrapped SOL (Devnet/Mainnet)
-            "So11111111111111111111111111111111111111112" | "So11111111111111111111111111111111111111111" => ("solana", 0.05),
-            // USDC stablecoin
+            "So11111111111111111111111111111111111111112"
+            | "So11111111111111111111111111111111111111111" => ("solana", 0.05),
             "Es9vMFrzaCERz8iYwByJ3Q6sX6ixSeKuuNHYsYAGP6X" => ("usd-coin", 0.002),
-            // Add more mints if your app supports them
             _ => ("solana", 0.05),
         };
 
@@ -407,7 +325,6 @@ impl SolanaClient {
             coingecko_id
         );
 
-        // Fetch JSON safely
         let response = match self.http.get(&url).send().await {
             Ok(r) => r,
             Err(_) => return default_vol,
@@ -423,9 +340,16 @@ impl SolanaClient {
             _ => return default_vol,
         };
 
-        // Compute absolute 24h price change
-        let first = prices.first().and_then(|p| p.get(1)).and_then(|v| v.as_f64()).unwrap_or(0.0);
-        let last = prices.last().and_then(|p| p.get(1)).and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let first = prices
+            .first()
+            .and_then(|p| p.get(1))
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0);
+        let last = prices
+            .last()
+            .and_then(|p| p.get(1))
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0);
 
         if first > 0.0 && last > 0.0 {
             ((last - first) / first).abs().clamp(0.0, 1.0)
