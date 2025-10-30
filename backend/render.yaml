@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: solana-defi-backend
+    env: docker
+    rootDir: backend
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: HOST
+        value: 0.0.0.0
+      - key: LOG_LEVEL
+        value: info
+      - key: CORS_ORIGINS
+        value: https://solana-defi-portfolio.vercel.app,http://localhost:5173
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      - key: PROGRAM_ID
+        value: 4xJGvDE2b5k9qCfSBXrT1a7HYPRxh2AvKHiQA9hm2ryS
+      - key: AI_SERVICE_URL
+        value: https://rejwar-solana-defi-ai.hf.space

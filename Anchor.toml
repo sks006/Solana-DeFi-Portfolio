@@ -1,6 +1,6 @@
 [provider]
 cluster = "devnet"
-wallet = "C:/Users/seamk/.config/solana/id.json"
+wallet = "/Users/md.rejwarrahmanrifat/.config/solana/id.json"
 
 [programs.localnet]
 amm_pool = "2YsibxDCmwrkAVVwbdkpN64RNVhnFjvJK5HSaZkdvZta"
