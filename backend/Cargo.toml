@@ -63,5 +63,3 @@ solana-commitment-config = "3.0.0"
 
 [dev-dependencies]
 tokio-test = "0.4"
-[patch.crates-io]
-base64ct = { version = "1.7", features = [] }
