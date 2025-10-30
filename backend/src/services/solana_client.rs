@@ -8,7 +8,7 @@ use solana_client::{
     rpc_request::TokenAccountsFilter,
     rpc_response::RpcKeyedAccount,
 };
-use solana_commitment_config::CommitmentConfig;
+use solana_program::program_pack::Pack;
 use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
@@ -18,7 +18,7 @@ use std::str::FromStr;
 
 use crate::config::SolanaConfig;
 use anyhow::Result;
-
+use solana_commitment_config::CommitmentConfig;
 // Type alias for thread-safe errors
 type ThreadSafeError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -135,27 +135,34 @@ impl SolanaClient {
         let mut token_accounts = Vec::new();
 
         for RpcKeyedAccount { account, .. } in accounts {
-            if let solana_account_decoder::UiAccountData::Json(parsed_data) = &account.data {
-                if let Some(info) = parsed_data.parsed.get("info") {
-                    let mint = info.get("mint").and_then(|v| v.as_str()).unwrap_or("");
-                    let owner = info.get("owner").and_then(|v| v.as_str()).unwrap_or("");
-                    let amount = info
-                        .get("tokenAmount")
-                        .and_then(|t| t.get("amount"))
-                        .and_then(|a| a.as_str())
-                        .and_then(|s| s.parse::<f64>().ok())
-                        .unwrap_or(0.0);
-                    let decimals = info
-                        .get("tokenAmount")
-                        .and_then(|t| t.get("decimals").and_then(|d| d.as_u64()))
-                        .unwrap_or(0) as u8;
+            // FIX: Handle different account data formats properly
+            match &account.data {
+                solana_account_decoder::UiAccountData::Json(parsed_data) => {
+                    if let Some(info) = parsed_data.parsed.get("info") {
+                        let mint = info.get("mint").and_then(|v| v.as_str()).unwrap_or("");
+                        let owner = info.get("owner").and_then(|v| v.as_str()).unwrap_or("");
+                        let amount = info
+                            .get("tokenAmount")
+                            .and_then(|t| t.get("amount"))
+                            .and_then(|a| a.as_str())
+                            .and_then(|s| s.parse::<f64>().ok())
+                            .unwrap_or(0.0);
+                        let decimals = info
+                            .get("tokenAmount")
+                            .and_then(|t| t.get("decimals").and_then(|d| d.as_u64()))
+                            .unwrap_or(0) as u8;
 
-                    token_accounts.push(TokenAccountInfo {
-                        mint: mint.to_string(),
-                        owner: owner.to_string(),
-                        amount,
-                        decimals,
-                    });
+                        token_accounts.push(TokenAccountInfo {
+                            mint: mint.to_string(),
+                            owner: owner.to_string(),
+                            amount,
+                            decimals,
+                        });
+                    }
+                }
+                // Handle other account data formats if needed
+                _ => {
+                    tracing::warn!("Unsupported account data format for wallet: {}", wallet);
                 }
             }
         }

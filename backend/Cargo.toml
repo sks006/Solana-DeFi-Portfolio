@@ -7,7 +7,7 @@ authors = ["Shihab <seamkabir07@gmail.com>"]
 repository = "https://github.com/sks006/solana-defi-portfolio"
 
 [dependencies]
-# 🌐 Web Framework
+# 🌐 Web Framework & WebSocket
 axum = { version = "0.7", features = ["ws", "macros"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
@@ -21,7 +21,7 @@ config = "0.13"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
 
-# ⚡ Solana & SPL Dependencies (Stable set)
+# ⚡ Solana & SPL Dependencies
 solana-client = "3.0.8"
 solana-sdk = "3.0.0"
 solana-program = "3.0.0"
@@ -37,18 +37,18 @@ anchor-spl = "0.32.1"
 tokio-tungstenite = "0.20"
 futures-util = "0.3"
 
-# 🌍 HTTP Client (Rustls — no OpenSSL required ✅)
-reqwest = { version = "0.12.3", features = ["json", "rustls-tls"] }
+# 🌍 HTTP Client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 
 # 🧩 Serialization & Utils
 serde_json = "1.0"
 uuid = { version = "1.8", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-base64 = "0.22.1"
+base64 = "0.22"
 bs58 = "0.4"
 bincode = "1.3"
-anyhow = "1.0.100"
-futures = "0.3.31"
+anyhow = "1.0"
+futures = "0.3"
 
 # 🧠 Async Traits & Error Handling
 async-trait = "0.1"
@@ -58,8 +58,13 @@ thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 solana-rpc-client-api = "3.0.8"
-borsh = "1.5.7"
+borsh = "1.5"
 solana-commitment-config = "3.0.0"
+
+# 📡 WebSocket & Async Utilities
+tokio-stream = "0.1"  # For StreamExt
+
 
 [dev-dependencies]
 tokio-test = "0.4"
+base64ct = "1.7"  # Use compatible version to avoid edition 2024 issues

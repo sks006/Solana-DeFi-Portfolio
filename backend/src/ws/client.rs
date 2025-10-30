@@ -1,6 +1,6 @@
 // backend/src/ws/client.rs
 use axum::{
-    extract::{State, WebSocketUpgrade},
+     extract::{State, WebSocketUpgrade},
     response::Response,
 };
 use futures_util::{SinkExt, StreamExt};
