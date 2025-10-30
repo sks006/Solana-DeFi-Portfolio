@@ -235,6 +235,10 @@ useRiskAlerts
 
 │   └── Dockerfile
 
+```
+https://huggingface.co/spaces/rejwar/solana-defi-ai
+
+```
 
                  🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨
 
