@@ -1,4 +1,3 @@
-# ai/python/app/core/config.py
 from pydantic_settings import BaseSettings
 from typing import List
 import os
@@ -14,9 +13,9 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # Server
-    PORT: int = 8001
     HOST: str = "0.0.0.0"
-    
+    PORT: int = int(os.getenv("PORT", 7860))  # 👈 dynamically use PORT
+
     # CORS
     ALLOWED_HOSTS: List[str] = ["*"]
     
@@ -24,7 +23,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
-    # Risk Analysis
+    # Risk Analysis thresholds
     HIGH_RISK_THRESHOLD: int = 70
     MEDIUM_RISK_THRESHOLD: int = 40
     
