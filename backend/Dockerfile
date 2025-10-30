@@ -10,6 +10,7 @@ RUN apt-get update \
 # Cache deps first
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
+
 RUN cargo build --release || true
 
 # Rebuild with real sources (the copy above already brought src in; we keep it simple)
