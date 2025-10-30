@@ -67,4 +67,3 @@ tokio-stream = "0.1"  # For StreamExt
 
 [dev-dependencies]
 tokio-test = "0.4"
-base64ct = "1.7"  # Use compatible version to avoid edition 2024 issues
