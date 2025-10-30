@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 pub mod context;
 pub mod processor;
 pub mod state;
-pub mod types;
+
 
 use context::*;
 
