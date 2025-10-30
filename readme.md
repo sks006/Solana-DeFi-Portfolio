@@ -236,7 +236,8 @@ useRiskAlerts
 │   └── Dockerfile
 
 ```
-https://huggingface.co/spaces/rejwar/solana-defi-ai
+https://rejwar-solana-defi-ai.hf.space/
+health
 
 ```
 
