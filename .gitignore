@@ -19,7 +19,7 @@ target/
 *.json
 
 # Cargo-specific
-Cargo.lock
+
 # if you have multiple programs under 'programs/', ignore their locks too
 programs/**/Cargo.lock
 
