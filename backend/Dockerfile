@@ -1,16 +1,10 @@
 # ---------- Build stage ----------
 # Use a newer Rust version that supports edition 2024
-FROM rust:1.82.0 as builder
+FROM rust:1.83.0 as builder
 
 WORKDIR /app
 
-COPY . .
-
-# Cache dependencies
-RUN cargo build --release
-RUN rm -rf src
-
-# Install minimal build deps
+# Install build dependencies FIRST
 RUN apt-get update \
  && apt-get install -y --no-install-recommends pkg-config libssl-dev ca-certificates \
  && rm -rf /var/lib/apt/lists/*
@@ -25,6 +19,7 @@ RUN rm -rf src
 
 # Copy actual source code
 COPY src ./src
+COPY config ./config
 
 # Clean and rebuild with actual code
 RUN cargo clean
