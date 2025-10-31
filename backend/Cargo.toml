@@ -8,7 +8,7 @@ repository = "https://github.com/sks006/solana-defi-portfolio"
 
 [dependencies]
 # 🌐 Web Framework & WebSocket
-axum = { version = "0.7", features = ["ws", "macros"] }
+axum = { version = "0.7.5", features = ["ws", "macros"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 
