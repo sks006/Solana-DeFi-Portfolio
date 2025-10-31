@@ -1,6 +1,6 @@
 # ---------- Build stage ----------
 # Use a newer Rust version that supports edition 2024
-FROM rust:1.83.0 as builder
+FROM rust:latest as builder
 
 WORKDIR /app
 
