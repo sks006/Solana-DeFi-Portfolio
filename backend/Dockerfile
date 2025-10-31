@@ -1,17 +1,27 @@
 # ---------- Build stage ----------
 FROM rust:1.81-slim AS builder
+# ---------- Build stage ----------
+
 WORKDIR /app
 
+# Install minimal build deps
 RUN apt-get update \
  && apt-get install -y --no-install-recommends pkg-config libssl-dev ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Remove base64ct from dependencies before building
+# Copy dependency files first for better caching
 COPY Cargo.toml Cargo.lock ./
-RUN sed -i '/base64ct/d' Cargo.toml
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 
+# Cache dependencies
+RUN cargo build --release
+RUN rm -rf src
+
+# Copy actual source code
 COPY src ./src
 
+# Clean and rebuild with actual code
+RUN cargo clean
 RUN cargo build --release
 
 # ---------- Runtime stage ----------

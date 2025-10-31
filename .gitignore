@@ -1,3 +1,8 @@
+# Navigate to your project
+cd "D:\Rust_Solana\🦀Projects\Hackathons ready project\Solana-DeFi-Portfolio"
+
+# Save your .gitignore (it's well-structured)
+@"
 # ---------------------------
 # 🦀 Rust + Solana (Anchor) .gitignore
 # ---------------------------
@@ -43,3 +48,4 @@ desktop.ini
 .env
 *.bak
 *.tmp
+"@ | Out-File -FilePath .gitignore -Encoding UTF8

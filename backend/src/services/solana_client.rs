@@ -43,6 +43,7 @@ pub struct JupiterQuote {
 pub struct RoutePlan {
     pub swap_info: SwapInfo,
     pub percent: u8,
+
 }
 
 #[derive(Debug, Serialize, Deserialize)]
