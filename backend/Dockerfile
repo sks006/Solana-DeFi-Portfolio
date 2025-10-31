@@ -1,8 +1,14 @@
 # ---------- Build stage ----------
-FROM rust:1.81-slim AS builder
-# ---------- Build stage ----------
+# Use a newer Rust version that supports edition 2024
+FROM rust:1.82.0 as builder
 
 WORKDIR /app
+
+COPY . .
+
+# Cache dependencies
+RUN cargo build --release
+RUN rm -rf src
 
 # Install minimal build deps
 RUN apt-get update \
