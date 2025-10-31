@@ -49,3 +49,6 @@ desktop.ini
 *.bak
 *.tmp
 "@ | Out-File -FilePath .gitignore -Encoding UTF8
+
+# Cargo registry and cache directories
+.cargo/
