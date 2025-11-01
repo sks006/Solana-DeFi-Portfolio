@@ -158,7 +158,7 @@ useRiskAlerts
 │       └── integration/          # backend + ai + replay
 
 
-✅ ```` https://solana-defi-portfolio.onrender.com/health````
+✅ ~~~ https://solana-defi-portfolio.onrender.com/health ~~~
 
 ✅ ````https://solana-defi-portfolio.onrender.com/info````
 
@@ -374,4 +374,5 @@ uvicorn app.main:app
 ~~~
  cargo clippy
 ~~~
+
 
