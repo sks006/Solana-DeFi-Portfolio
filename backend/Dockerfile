@@ -35,7 +35,7 @@ RUN apt-get update \
 
 COPY --from=builder /app/target/release/solana-defi-backend /usr/local/bin/backend
 
-ENV PORT=${PORT:-8080}
+ENV PORT=${PORT:-3000}
 ENV AI_BASE_URL="https://rejwar-solana-defi-ai.hf.space"
 ENV RUST_LOG=info
 EXPOSE ${PORT}
