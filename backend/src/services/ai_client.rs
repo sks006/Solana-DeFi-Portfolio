@@ -11,13 +11,12 @@ pub struct RiskAnalysis {
     pub recommendations: Vec<String>,
 }
 
-// ✅ New: Detailed response from AI service
+// ✅ Detailed response from AI service
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RiskAnalysisResponse {
     pub risk_score: f64,
     pub risk_level: String,
     pub alerts: Option<Vec<RiskAlert>>,
-
     pub recommendations: Option<Vec<String>>,
 }
 
@@ -67,7 +66,7 @@ impl AIClient {
         }
     }
 
-    // ✅ Updated: Analyze position risk (real AI call)
+    // ✅ Updated: Analyze portfolio risk
     pub async fn analyze_portfolio_risk(
         &self,
         wallet: &str,
@@ -90,11 +89,36 @@ impl AIClient {
             });
         }
 
+        // 🧠 Prevent invalid payloads
+        if total_value <= 0.0 {
+            tracing::warn!("⚠️ Skipping AI analysis: total_value <= 0");
+            return Ok(RiskAnalysisResponse {
+                risk_score: 0.0,
+                risk_level: "none".to_string(),
+                alerts: Some(vec![RiskAlert {
+                    severity: "info".to_string(),
+                    message: "Portfolio total_value must be > 0 for AI analysis".to_string(),
+                    metric: Some("total_value".to_string()),
+                    value: Some(total_value),
+                }]),
+                recommendations: Some(vec![
+                    "Fund portfolio or add positions before analysis".to_string()
+                ]),
+            });
+        }
+
+        // ✅ Correct payload structure (matches Hugging Face API)
         let payload = serde_json::json!({
             "wallet": wallet,
-            "positions": positions,
-            "total_value": total_value,
-            "leverage_ratio": leverage_ratio
+            "total_value": total_value.max(0.0),
+            "leverage_ratio": leverage_ratio,
+            "positions": positions.iter().map(|p| serde_json::json!({
+                "symbol": p.symbol,
+                "mint": p.mint,
+                "amount": p.amount,
+                "value_usd": p.value_usd,
+                "volatility": p.volatility
+            })).collect::<Vec<_>>()
         });
 
         let url = format!("{}/analyze/portfolio", self.base_url.trim_end_matches('/'));
@@ -113,8 +137,7 @@ impl AIClient {
         }
     }
 
-    // (Keep your existing fallback + helper functions below)
-
+    // ✅ Local fallback (no AI)
     fn calculate_fallback_risk_score_from_analysis(
         &self,
         positions: &[crate::server_functions::risk::PositionForAnalysis],
