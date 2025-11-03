@@ -14,8 +14,10 @@ pub struct RiskAnalysisRequest {
 // Step 2: Position data for risk analysis
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PositionForAnalysis {
+    pub symbol: String,
     pub mint: String,
     pub amount: f64,
+      #[serde(rename = "value_usd")]
     pub value_usd: f64,
     pub volatility: f64,
 }
@@ -94,3 +96,4 @@ pub async fn analyze_position(
         }
     }
 }
+
